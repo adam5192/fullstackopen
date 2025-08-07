@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import Person from './components/Person'
 import peopleService from './services/people'
+import Message from './components/Message'
 
 const Filter = ( {text, value, handle} ) => (
   <div>
@@ -32,6 +33,8 @@ const App = () => {
   const [newName, setNewName] = useState('')
   const [newNumber, setNewNumber] = useState('')
   const [inputFilter, setInputFilter] = useState('')
+  const [message, setMessage] = useState(null)
+  const [isError, setIsError] = useState(false)
 
   const Persons = ( {list} ) => (
   <ul>
@@ -50,10 +53,9 @@ const App = () => {
 
   const deletePersonOf = id => {
     if (window.confirm('Are you sure you want to delete this person?')) {
-      peopleService.remove(id).then(() => {
+      return peopleService.remove(id).then(() => {
         setPersons(persons.filter(p => p.id !== id))
-      })
-      .catch(error => {
+      }).catch(error => {
         console.error('Failed to delete:', error)
       })
     }
@@ -88,6 +90,12 @@ const App = () => {
         number: newNumber
       }
 
+      setMessage(`Added ${newName}`)
+      setTimeout(() => {
+        setMessage(null)
+        setIsError(false)
+      }, 5000)
+
       peopleService.create(personObject).then(returnedObject => {
         setPersons(persons.concat(returnedObject))
         setNewName('')
@@ -100,6 +108,23 @@ const App = () => {
         peopleService.update(existingPerson.id, newPerson).then(returnedObject => {
           setPersons(persons.map(p => p.id === existingPerson.id ? returnedObject: p))
         })
+        .catch(error => {
+          console.log('fail', error)
+          setMessage(`Information of ${newName} has already been removed from server`)
+          setPersons(persons.filter(p => p.name !== newName))
+          setIsError(true)
+          setTimeout(() => {
+            setMessage(null)
+            setIsError(false)
+          }, 5000)
+        })
+
+
+        setMessage(`Updated ${newName}`)
+        setTimeout(() => {
+          setMessage(null)
+          setIsError(false)
+        }, 5000)
       }
     }
     else {
@@ -110,6 +135,7 @@ const App = () => {
   return (
     <div>
       <h2>Phonebook</h2>
+      <Message text={message} isError={isError} />
       <Filter text="filter shown with" value={inputFilter} handle={handleInputFilter} />
       <h3>add a new</h3>
       <PeopleForm submit={addPerson} nameValue={newName} nameChange={handleNewName} 
