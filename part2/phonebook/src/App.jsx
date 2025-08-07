@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import Person from './components/Person'
-import axios from 'axios'
+import peopleService from './services/people'
 
 const Filter = ( {text, value, handle} ) => (
   <div>
@@ -26,13 +26,6 @@ const PeopleForm = ( {submit, nameValue, nameChange, numberValue, numberChange} 
   </form>
 )
 
-const Persons = ( {list} ) => (
-  <ul>
-    {list.map((person) => (
-    <Person key={person.name} person={person} />
-    ))}
-  </ul>
-)
 
 const App = () => {
   const [persons, setPersons] = useState([])
@@ -40,14 +33,33 @@ const App = () => {
   const [newNumber, setNewNumber] = useState('')
   const [inputFilter, setInputFilter] = useState('')
 
-  const hook = () => {
-    console.log('effect')
-    axios.get('http://localhost:3001/persons').then(response => {
-      console.log('promise fulfilled')
-      setPersons(response.data)
+  const Persons = ( {list} ) => (
+  <ul>
+    {list.map((person) => (
+    <Person key={person.id} person={person} deletePerson={() => deletePersonOf(person.id)}/>
+    ))}
+  </ul>
+)
+
+  useEffect(() => {
+    peopleService.getAll().then(initialPeople => {
+      setPersons(initialPeople)
     })
+  }, [])
+
+
+  const deletePersonOf = id => {
+    if (window.confirm('Are you sure you want to delete this person?')) {
+      peopleService.remove(id).then(() => {
+        setPersons(persons.filter(p => p.id !== id))
+      })
+      .catch(error => {
+        console.error('Failed to delete:', error)
+      })
+    }
+    
   }
-  useEffect(hook, [])
+
   console.log('render', persons.length, 'person(s)')
 
   const handleNewName = (event) => {
@@ -69,14 +81,26 @@ const App = () => {
 
   const addPerson = (event) => {
     event.preventDefault()
-    if (!persons.some(person => person.name === newName)) {
+    const existingPerson = persons.find(person => person.name === newName)
+    if (!existingPerson) {
       const personObject = {
         name: newName,
         number: newNumber
       }
-      setPersons(persons.concat(personObject))
-      setNewName('')
-      setNewNumber('')
+
+      peopleService.create(personObject).then(returnedObject => {
+        setPersons(persons.concat(returnedObject))
+        setNewName('')
+        setNewNumber('')
+      })
+    }
+    else if (!(existingPerson.number === newNumber)) {
+      if (window.confirm(`${newName} is already added to phonebook, replace the old number with a new one?`)) {
+        const newPerson = {...existingPerson, number : newNumber}
+        peopleService.update(existingPerson.id, newPerson).then(returnedObject => {
+          setPersons(persons.map(p => p.id === existingPerson.id ? returnedObject: p))
+        })
+      }
     }
     else {
       alert(`${newName} is already added to phonebook`)
