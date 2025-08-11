@@ -19,7 +19,8 @@ const PeopleForm = ( {submit, nameValue, nameChange, numberValue, numberChange} 
       <br />
       number: <input 
               value={numberValue}
-              onChange={numberChange}/>
+              onChange={numberChange}
+              required/>
     </div>
     <div>
       <button type="submit" >add</button>
