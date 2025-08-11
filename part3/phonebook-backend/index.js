@@ -1,6 +1,8 @@
+require('dotenv').config()
 const express = require('express')
 const app = express()
 const morgan = require('morgan')
+const Person = require('./models/person')
 
 app.use(express.json())
 app.use(express.static('dist'))
@@ -12,59 +14,44 @@ app.use(
   morgan(':method :url :status :res[content-length] - :response-time ms :body')
 );
 
-let phonebook = [
-    { 
-      "id": "1",
-      "name": "Arto Hellas", 
-      "number": "040-123456"
-    },
-    { 
-      "id": "2",
-      "name": "Ada Lovelace", 
-      "number": "39-44-5323523"
-    },
-    { 
-      "id": "3",
-      "name": "Dan Abramov", 
-      "number": "12-43-234345"
-    },
-    { 
-      "id": "4",
-      "name": "Mary Poppendieck", 
-      "number": "39-23-6423122"
-    }
-]
-
 app.get('/', (request, response) => {
     response.send('<h1>Hello World!</h1>')
 })
 
 app.get('/api/persons', (request, response) => {
-    response.json(phonebook)
-})
-
-app.get('/info', (request, response) => {
-    const now = new Date();
-    const dateString = now.toString()
-    response.write('<p>Phonebook has info for 2 people</p>')
-    response.write(`${dateString}`)
-    response.end()
-})
-
-app.get('/api/persons/:id', (request, response) => {
-    const id = request.params.id
-    const person = phonebook.find(p => p.id === id)
-
-    if (person) {
+    Person.find({}).then(person => {
         response.json(person)
-    } else response.status(404).end()
+    })
 })
+
+app.get('/info', async (_req, res, next) => {
+  try {
+    const count = await Person.countDocuments({});
+    res.send(
+      `<p>Phonebook has info for ${count} people</p>
+       <p>${new Date()}</p>`
+    );
+  } catch (err) {
+    next(err);
+  }
+});
+
+app.get('/api/persons/:id', (req, res, next) => {
+  Person.findById(req.params.id)
+    .then(person => {
+      if (!person) return res.status(404).end();
+      res.json(person); 
+    })
+    .catch(next); 
+});
+
 
 app.delete('/api/persons/:id', (request, response) => {
-    const id = request.params.id
-    phonebook = phonebook.filter(p => p.id !== id)
-
-    response.status(204).end()
+    Person.findByIdAndDelete(request.params.id)
+        .then(result => {
+            response.status(204).end()
+        })
+        .catch(error => next(error))
 })
 
 app.post('/api/persons', (request, response) => {
@@ -74,28 +61,40 @@ app.post('/api/persons', (request, response) => {
             error: 'name missing'
         })
     }
-    const existingPerson = phonebook.find(p => p.name === body.name)
-    if (existingPerson) {
-        return response.status(400).json({
-            error: 'name must be unique'
-        })
-    }
-    if (!body.number) {
-        return response.status(400).json({
-            error: 'number missing'
-        })
-    }
-
-    const person = {
-        id: generateId(),
+    const person = new Person({
         name: body.name,
         number: body.number,
-    }
+    })
 
-    phonebook = phonebook.concat(person)
-    console.log(person)
-    response.json(person)
+    person.save().then(savedPerson => {
+        response.json(savedPerson)
+    })
 })
+
+app.put('/api/persons/:id', (req, res, next) => {
+  const { name, number } = req.body;
+
+  if (name === undefined && number === undefined) {
+    return res.status(400).json({ error: 'no fields to update' });
+  }
+
+  Person.findById(req.params.id)
+    .then(person => {
+      if (!person) return res.status(404).end();
+
+      if (name !== undefined) person.name = name;
+      if (number !== undefined) person.number = number;
+
+      return person.save(); // runs schema validators
+    })
+    .then(updatedPerson => {
+      if (updatedPerson) res.json(updatedPerson);
+    })
+    .catch(next);
+});
+
+
+
 
 const generateId = () => {
     const maxId = phonebook.length > 0
@@ -104,7 +103,22 @@ const generateId = () => {
     return String(maxId+1)
 }
 
-const PORT = process.env.PORT || 3001;
+const errorHandler = (error, request, response, next) => {
+  console.error(error.message)
+  if (err.name === 'CastError') {
+    return res.status(400).send({ error: 'malformatted id' });
+  }
+  if (err.name === 'ValidationError') {
+    return res.status(400).send({ error: err.message });
+  }
+  console.error(err);
+  res.status(500).send({ error: 'server error' });
+}
+
+// this has to be the last loaded middleware, also all the routes should be registered before this!
+app.use(errorHandler)
+
+const PORT = process.env.PORT;
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`)
 })

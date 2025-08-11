@@ -17,3 +17,5 @@ Content-Type: application/json
 {
     "name" : "John"
 }
+###
+GET http://localhost:3001/api/persons
