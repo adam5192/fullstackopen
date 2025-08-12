@@ -1,20 +1,12 @@
 const express = require('express')
 const mongoose = require('mongoose')
 require('dotenv').config()
+const Blog = require('../models/blog')
 
 const PORT = process.env.PORT
 const MONGODB_URI = process.env.MONGODB_URI
 
 const app = express()
-
-const blogSchema = mongoose.Schema({
-  title: String,
-  author: String,
-  url: String,
-  likes: Number,
-})
-
-const Blog = mongoose.model('Blog', blogSchema)
 
 mongoose.connect(MONGODB_URI)
 
