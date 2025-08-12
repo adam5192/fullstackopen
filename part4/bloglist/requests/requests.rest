@@ -20,3 +20,14 @@ Content-type: application/json
     "url": "www.google.com",
     "likes": 23
 }
+
+###
+POST http://localhost:3003/api/blogs
+Content-type: application/json
+
+{
+    "title": "The",
+    "author": "John",
+    "url": "www.google.com",
+    "likes": 2333
+}
