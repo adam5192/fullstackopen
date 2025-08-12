@@ -1,0 +1,22 @@
+GET http://localhost:3003/api/blogs
+###
+
+POST http://localhost:3003/api/blogs
+Content-type: application/json
+
+{
+    "title": "Title",
+    "author": "Adam Mokdad",
+    "url": "www.google.com",
+    "likes": 23
+}
+###
+POST http://localhost:3003/api/blogs
+Content-type: application/json
+
+{
+    "title": "Title 2",
+    "author": "Adam Mokdad 2",
+    "url": "www.google.com",
+    "likes": 23
+}
