@@ -54,7 +54,7 @@ app.delete('/api/persons/:id', (request, response) => {
         .catch(error => next(error))
 })
 
-app.post('/api/persons', (request, response) => {
+app.post('/api/persons', (request, response, next) => {
     const body = request.body
     if (!body.name) {
         return response.status(400).json({
@@ -69,6 +69,7 @@ app.post('/api/persons', (request, response) => {
     person.save().then(savedPerson => {
         response.json(savedPerson)
     })
+    .catch(error => next(error))
 })
 
 app.put('/api/persons/:id', (req, res, next) => {
@@ -94,28 +95,19 @@ app.put('/api/persons/:id', (req, res, next) => {
 });
 
 
+const errorHandler = (error, req, res, next) => {
+  console.error(error.name, error.message);
 
-
-const generateId = () => {
-    const maxId = phonebook.length > 0
-        ? Math.max(...phonebook.map(p => Number(p.id)))
-        : 0
-    return String(maxId+1)
-}
-
-const errorHandler = (error, request, response, next) => {
-  console.error(error.message)
-  if (err.name === 'CastError') {
+  if (error.name === 'CastError') {
     return res.status(400).send({ error: 'malformatted id' });
   }
-  if (err.name === 'ValidationError') {
-    return res.status(400).send({ error: err.message });
+  if (error.name === 'ValidationError') {
+    return res.status(400).json({ error: error.message });
   }
-  console.error(err);
-  res.status(500).send({ error: 'server error' });
-}
 
-// this has to be the last loaded middleware, also all the routes should be registered before this!
+  return res.status(500).json({ error: 'server error' });
+};
+
 app.use(errorHandler)
 
 const PORT = process.env.PORT;

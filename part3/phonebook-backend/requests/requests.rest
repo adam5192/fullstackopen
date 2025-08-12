@@ -6,7 +6,7 @@ Content-Type: application/json
 
 {
     "name" : "Charles",
-    "number" : "123-456-7890"
+    "number" : "09-1234556"
 }
 
 ###
@@ -15,7 +15,7 @@ POST http://localhost:3001/api/persons
 Content-Type: application/json
 
 {
-    "name" : "John"
+    "name" : "Jo"
 }
 ###
 GET http://localhost:3001/api/persons
