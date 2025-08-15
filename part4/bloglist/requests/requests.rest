@@ -31,3 +31,103 @@ Content-type: application/json
     "url": "www.google.com",
     "likes": 2333
 }
+
+###
+POST http://localhost:3003/api/users
+Content-Type: application/json
+
+{
+  "username": "adam",
+  "name": "Adam Mokdad",
+  "password": "secret123"
+}
+
+###
+POST http://localhost:3003/api/users
+Content-Type: application/json
+
+{
+  "username": "adam 2",
+  "name": "Adam Mokdad 2",
+  "password": "secret123 2"
+}
+
+###
+POST http://localhost:3003/api/users
+Content-Type: application/json
+
+{
+  "username": "adam 2",
+  "name": "Adam Mokdad 3",
+  "password": "see"
+}
+
+###
+POST http://localhost:3003/api/blogs
+Content-type: application/json
+
+{
+    "title": "NEW BLOG",
+    "author": "USER",
+    "url": "www.google.com",
+    "likes": 4000
+}
+
+###
+POST http://localhost:3003/api/users
+Content-Type: application/json
+
+{
+    "username": "root",
+    "name": "Superuser",
+    "password": "salainen"
+}
+
+###
+post http://localhost:3003/api/login
+Content-Type: application/json
+
+{
+    "username": "root",
+    "password": "salainen"
+}
+
+###
+POST http://localhost:3003/api/users
+Content-Type: application/json
+
+{
+    "username": "user2",
+    "name": "user 2",
+    "password": "salainen"
+}
+
+###
+POST http://localhost:3003/api/login
+Content-Type: application/json
+
+{
+    "username": "user2",
+    "password": "salainen"
+}
+
+
+###
+POST http://localhost:3003/api/blogs
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6InJvb3QiLCJpZCI6IjY4OWY3NWRlMGZkZGM0MmMyMmJkMDExOSIsImlhdCI6MTc1NTI4MTY3Nn0.mjR0LWprxB68Pwle8pxEQW-Nju60iiWBr3hB5BoZSuA
+
+{
+    "title": "USER ID TEST 3333",
+    "author": "ME",
+    "url": "www.google.com",
+    "likes": 4000
+}
+
+###
+DELETE http://localhost:3003/api/blogs/689f79afb2cdbc4d51ebcf52
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6InVzZXIyIiwiaWQiOiI2ODlmN2I4NTRlMWExMjU0OGU3ODBlZDYiLCJpYXQiOjE3NTUyODIzMzl9.dCYAwuk9yCO4pJ1iHzoGMCsKlO54yd_a90fm5jiZ-xg.eyJ1c2VybmFtZSI6InJvb3QiLCJpZCI6IjY4OWY3NWRlMGZkZGM0MmMyMmJkMDExOSIsImlhdCI6MTc1NTI4MTY3Nn0.mjR0LWprxB68Pwle8pxEQW-Nju60iiWBr3hB5BoZSuA
+
+
+###
+GET http://localhost:3003/api/users
