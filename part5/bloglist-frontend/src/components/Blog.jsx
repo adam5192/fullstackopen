@@ -10,10 +10,13 @@ const Blog = ({ blog, onLike, onDelete, currentUser }) => {
 
   return (
     <div className="blog">
-      {blog.title} by {blog.author}{' '}
-      <button onClick={() => setShowDetails((s) => !s)}>
-        {showDetails ? 'hide' : 'view'}
-      </button>
+      <div className = "summary">
+        {blog.title} by {blog.author}{' '}
+        <button onClick={() => setShowDetails((s) => !s)}>
+          {showDetails ? 'hide' : 'view'}
+        </button>
+      </div>
+
       {showDetails && (
         <div className="details">
           <p>{blog.url}</p>
