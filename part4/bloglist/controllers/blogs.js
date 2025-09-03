@@ -27,9 +27,10 @@ router.post('/', userExtractor, async (request, response) => {
       likes: body.likes,
       user: user._id
   })
-  
+
   const savedBlog = await blog.save()
-  response.status(201).json(savedBlog)
+  const populatedBlog = await savedBlog.populate('user', { username: 1, name: 1 })
+  response.status(201).json(populatedBlog)
 })
 
 router.delete('/:id', userExtractor, async (request, response) => {
